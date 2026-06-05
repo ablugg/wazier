@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="230" fill="#111111"/>
+
+  <!-- Outer glow ring -->
+  <circle cx="512" cy="512" r="390" fill="none" stroke="#00e676" stroke-width="18" opacity="0.2"/>
+
+  <!-- W shape -->
+  <polyline
+    points="180,300 310,724 512,420 714,724 844,300"
+    fill="none"
+    stroke="#00e676"
+    stroke-width="88"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Bottom accent line -->
+  <line x1="260" y1="800" x2="764" y2="800" stroke="#00e676" stroke-width="18" stroke-linecap="round" opacity="0.4"/>
+</svg>

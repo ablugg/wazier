@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(which ollama && ollama --version; python3 --version; which pip3)",
+      "Bash(system_profiler SPHardwareDataType | grep -E \"Chip|Memory|Processor\")",
+      "Bash(ollama --version)",
+      "Bash(ollama pull llama3.2:3b)",
+      "Bash(ollama list)",
+      "Bash(pip3 install ollama rich 2>&1 | tail -5)",
+      "Bash(pip3 install keyring cryptography 2>&1 | tail -5)",
+      "Bash(pip3 install cryptography 2>&1 | tail -3)",
+      "Bash(python3 -c \"from cryptography.fernet import Fernet; print\\('ok'\\)\")",
+      "Bash(cd /Users/muhammadablugg/Desktop/Wazier && python3 -c \"import storage; sid = storage.new_session\\(\\); storage.append_message\\(sid, 'user', 'test'\\); storage.append_message\\(sid, 'assistant', 'reply'\\); print\\('sessions:', len\\(storage.list_sessions\\(\\)\\)\\); print\\('messages:', storage.get_messages\\(sid\\)\\)\")",
+      "Bash(which ffmpeg && ffmpeg -version 2>&1 | head -1; which say)",
+      "Bash(brew install ffmpeg 2>&1 | tail -3)",
+      "Bash(pip3 install openai-whisper sounddevice numpy scipy 2>&1 | tail -5)",
+      "Bash(/Applications/Python\\\\ 3.13/Install\\\\ Certificates.command 2>&1 | tail -5)",
+      "Bash(node --version && npm --version)",
+      "Bash(cd /Users/muhammadablugg/Desktop/Wazier && npm install 2>&1 | tail -5)",
+      "Bash(which convert && convert --version 2>&1 | head -1; which rsvg-convert; which sips)",
+      "Bash(brew install imagemagick 2>&1 | tail -3)",
+      "Bash(cd /Users/muhammadablugg/Desktop/Wazier/assets && \\\\\nconvert -background none icon.svg -resize 1024x1024 icon_1024.png && \\\\\necho \"PNG created\")",
+      "Bash(\\\\\nmagick icon_256.png icon_128.png icon_64.png icon_32.png icon_16.png icon.ico && \\\\\necho \"ico created\")",
+      "Bash(cd /Users/muhammadablugg/Desktop/Wazier && npm run build:mac 2>&1)",
+      "Bash(xattr -cr /Users/muhammadablugg/Desktop/Wazier/dist 2>/dev/null; rm -rf /Users/muhammadablugg/Desktop/Wazier/dist && echo \"cleaned\")",
+      "Bash(ls -lh /Users/muhammadablugg/Desktop/Wazier/dist/*.dmg)",
+      "Bash(which gh && gh --version 2>&1 | head -1; git --version)",
+      "Bash(gh auth status 2>&1)",
+      "Bash(cd /Users/muhammadablugg/Desktop/Wazier && gh repo create wazier --public --description \"Private local AI assistant. Runs 100% offline.\" 2>&1)",
+      "Bash(git add . && git commit -m \"Initial release — local AI assistant with encrypted storage and voice\" && git remote add origin https://github.com/ablugg/wazier.git && git push -u origin main 2>&1)"
+    ]
+  }
+}

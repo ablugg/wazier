@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wazier</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Setup screen -->
+  <div id="setup-screen" class="hidden">
+    <div class="setup-box">
+      <div class="logo">WAZIER</div>
+      <p class="setup-sub">Private AI. Runs on your device. No internet needed.</p>
+      <div id="setup-status"></div>
+      <div id="setup-actions"></div>
+      <div id="progress-wrap" class="hidden">
+        <div class="progress-label">Downloading model… <span id="progress-pct">0%</span></div>
+        <div class="progress-bar"><div id="progress-fill"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main app -->
+  <div id="app-screen" class="hidden">
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <span class="logo-small">WAZIER</span>
+        <button id="new-chat-btn" title="New chat">+</button>
+      </div>
+      <div id="session-list"></div>
+      <div class="sidebar-footer">
+        <button id="clear-btn" class="ghost-btn">Clear old history</button>
+      </div>
+    </aside>
+
+    <main id="chat-area">
+      <div id="messages"></div>
+      <div id="input-bar">
+        <button id="save-btn" class="icon-btn" title="Save this session forever">★</button>
+        <textarea id="input" placeholder="Message WAZIER…" rows="1"></textarea>
+        <button id="mic-btn" class="icon-btn" title="Voice input">🎤</button>
+        <button id="send-btn" title="Send">↑</button>
+      </div>
+      <div id="voice-indicator" class="hidden">Listening…</div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
