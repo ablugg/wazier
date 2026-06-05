@@ -31,7 +31,19 @@
         <span class="logo-small">W<span>AZIER</span></span>
         <button id="new-chat-btn" title="New chat">+</button>
       </div>
-      <div id="session-list"></div>
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab active" data-tab="chats">Chats</button>
+        <button class="sidebar-tab" data-tab="docs">Docs</button>
+      </div>
+
+      <div id="session-list" class="tab-panel"></div>
+
+      <div id="docs-panel" class="tab-panel hidden">
+        <div id="doc-list"></div>
+        <button id="upload-doc-btn" class="upload-btn">+ Add Document</button>
+        <div id="doc-progress" class="doc-progress hidden"></div>
+      </div>
+
       <div class="sidebar-footer">
         <button id="clear-btn" class="ghost-btn">Clear old history</button>
         <div class="version-tag">v1.0.2</div>

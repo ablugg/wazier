@@ -97,7 +97,7 @@ window.pullModel = async () => {
 async function launchApp() {
   await api.purgeOld()
   show('app-screen')
-  await loadSidebar()
+  await Promise.all([loadSidebar(), loadDocs()])
   startNewChat()
 }
 
@@ -252,6 +252,73 @@ document.getElementById('save-btn').addEventListener('click', async () => {
   await loadSidebar()
   document.getElementById('save-btn').classList.add('active')
   document.getElementById('save-btn').title = 'Saved forever'
+})
+
+// ── Sidebar tabs ───────────────────────────────────────────────────────────────
+
+document.querySelectorAll('.sidebar-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'))
+    tab.classList.add('active')
+    const target = tab.dataset.tab
+    document.getElementById('session-list').classList.toggle('hidden', target !== 'chats')
+    document.getElementById('docs-panel').classList.toggle('hidden', target !== 'docs')
+  })
+})
+
+// ── Docs ───────────────────────────────────────────────────────────────────────
+
+async function loadDocs() {
+  const docs = await api.listDocs()
+  const list = document.getElementById('doc-list')
+  list.innerHTML = ''
+
+  if (docs.length) {
+    const indicator = document.createElement('div')
+    indicator.className = 'rag-indicator'
+    indicator.textContent = `${docs.length} doc${docs.length > 1 ? 's' : ''} active in library`
+    list.appendChild(indicator)
+  }
+
+  docs.forEach(doc => {
+    const el = document.createElement('div')
+    el.className = 'doc-item'
+    const date = new Date(doc.uploadedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+    el.innerHTML = `
+      <div class="doc-info">
+        <div class="doc-name">${doc.name}</div>
+        <div class="doc-meta">${doc.chunkCount} chunks · ${date}</div>
+      </div>
+      <button class="doc-delete" title="Remove">✕</button>
+    `
+    el.querySelector('.doc-delete').addEventListener('click', async () => {
+      await api.deleteDoc(doc.id)
+      loadDocs()
+    })
+    list.appendChild(el)
+  })
+}
+
+document.getElementById('upload-doc-btn').addEventListener('click', async () => {
+  const paths = await api.openDocDialog()
+  if (!paths.length) return
+
+  const btn = document.getElementById('upload-doc-btn')
+  const progress = document.getElementById('doc-progress')
+  btn.disabled = true
+  progress.classList.remove('hidden')
+
+  api.offDocProgress()
+  api.onDocProgress(msg => { progress.textContent = msg })
+
+  for (const filePath of paths) {
+    await api.addDoc(filePath)
+  }
+
+  btn.disabled = false
+  progress.classList.add('hidden')
+  api.offDocProgress()
+  loadDocs()
 })
 
 document.getElementById('clear-btn').addEventListener('click', async () => {

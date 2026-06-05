@@ -1,8 +1,9 @@
-const { app, BrowserWindow, ipcMain, safeStorage, shell, net } = require('electron')
+const { app, BrowserWindow, ipcMain, safeStorage, shell, net, dialog } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const crypto = require('crypto')
 const Store = require('electron-store')
+const { DocStore, addDocument, listDocuments, deleteDocument, retrieveContext } = require('./rag')
 
 const MODEL = 'llama3.2:3b'
 const SYSTEM_PROMPT = 'You are WAZIER, a personal AI assistant running locally on the user\'s device. You are private, helpful, and direct.'
@@ -10,6 +11,7 @@ const RETENTION_DAYS = 7
 const OLLAMA = 'http://localhost:11434'
 
 let store = null
+let docStore = null
 let mainWindow = null
 
 // ── Encryption key via OS keychain ────────────────────────────────────────────
@@ -32,8 +34,10 @@ function getEncryptionKey() {
 }
 
 function initStore() {
-  store = new Store({ encryptionKey: getEncryptionKey(), name: 'history' })
+  const key = getEncryptionKey()
+  store = new Store({ encryptionKey: key, name: 'history' })
   if (!store.has('sessions')) store.set('sessions', [])
+  docStore = new DocStore(path.join(app.getPath('userData'), 'docs.enc'), key)
 }
 
 // ── Window ─────────────────────────────────────────────────────────────────────
@@ -161,10 +165,33 @@ ipcMain.handle('setup:launch-ollama', () => {
   proc.unref()
 })
 
+// ── IPC: Docs ──────────────────────────────────────────────────────────────────
+
+ipcMain.handle('docs:open-dialog', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openFile', 'multiSelections'],
+    filters: [{ name: 'Documents', extensions: ['pdf', 'txt', 'docx', 'md'] }],
+  })
+  return result.filePaths
+})
+
+ipcMain.handle('docs:add', async (event, filePath) => {
+  return addDocument(filePath, docStore, net.request, (msg) => {
+    mainWindow.webContents.send('docs:progress', msg)
+  })
+})
+
+ipcMain.handle('docs:list', () => listDocuments(docStore))
+
+ipcMain.handle('docs:delete', (event, id) => deleteDocument(id, docStore))
+
 // ── IPC: Chat ──────────────────────────────────────────────────────────────────
 
 ipcMain.handle('chat:send', async (event, messages) => {
-  const full = [{ role: 'system', content: SYSTEM_PROMPT }, ...messages]
+  const lastMessage = messages[messages.length - 1]?.content || ''
+  const context = await retrieveContext(lastMessage, docStore, net.request)
+  const systemWithContext = context ? SYSTEM_PROMPT + '\n\n' + context : SYSTEM_PROMPT
+  const full = [{ role: 'system', content: systemWithContext }, ...messages]
   let fullResponse = ''
 
   await netPost(`${OLLAMA}/api/chat`, { model: MODEL, messages: full, stream: true }, (chunk) => {

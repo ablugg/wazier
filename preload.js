@@ -13,6 +13,14 @@ contextBridge.exposeInMainWorld('wazier', {
   onToken: (cb) => ipcRenderer.on('chat:token', (_, token) => cb(token)),
   offToken: () => ipcRenderer.removeAllListeners('chat:token'),
 
+  // Docs
+  openDocDialog: () => ipcRenderer.invoke('docs:open-dialog'),
+  addDoc: (filePath) => ipcRenderer.invoke('docs:add', filePath),
+  listDocs: () => ipcRenderer.invoke('docs:list'),
+  deleteDoc: (id) => ipcRenderer.invoke('docs:delete', id),
+  onDocProgress: (cb) => ipcRenderer.on('docs:progress', (_, msg) => cb(msg)),
+  offDocProgress: () => ipcRenderer.removeAllListeners('docs:progress'),
+
   // Storage
   newSession: () => ipcRenderer.invoke('storage:new-session'),
   appendMessage: (sessionId, role, content) => ipcRenderer.invoke('storage:append', { sessionId, role, content }),
