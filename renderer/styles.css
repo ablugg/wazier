@@ -96,6 +96,7 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 .session-saved { font-size: 10px; color: var(--accent); margin-top: 2px; }
 
 .sidebar-footer { padding: 12px; border-top: 1px solid var(--border); }
+.version-tag { font-size: 10px; color: var(--text-dim); text-align: center; margin-top: 8px; letter-spacing: 0.05em; }
 
 .ghost-btn {
   width: 100%; padding: 8px; background: transparent; border: 1px solid var(--border);
