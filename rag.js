@@ -17,10 +17,15 @@ async function extractText(filePath) {
   }
 
   if (ext === '.pdf') {
-    const pdfParse = require('pdf-parse/lib/pdf-parse.js')
-    const buf = fs.readFileSync(filePath)
-    const result = await pdfParse(buf)
-    return result.text
+    const PDFParser = require('pdf2json')
+    return new Promise((resolve, reject) => {
+      const parser = new PDFParser(null, true)
+      parser.on('pdfParser_dataReady', () => {
+        resolve(parser.getRawTextContent())
+      })
+      parser.on('pdfParser_dataError', err => reject(err.parserError))
+      parser.loadPDF(filePath)
+    })
   }
 
   if (ext === '.docx') {

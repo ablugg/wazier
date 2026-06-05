@@ -188,9 +188,14 @@ ipcMain.handle('docs:open-dialog', async () => {
 })
 
 ipcMain.handle('docs:add', async (event, filePath) => {
-  return addDocument(filePath, docStore, net.request, (msg) => {
-    mainWindow.webContents.send('docs:progress', msg)
-  })
+  try {
+    return await addDocument(filePath, docStore, net.request, (msg) => {
+      mainWindow.webContents.send('docs:progress', msg)
+    })
+  } catch (e) {
+    mainWindow.webContents.send('docs:progress', `Error: ${e.message}`)
+    throw e
+  }
 })
 
 ipcMain.handle('docs:list', () => listDocuments(docStore))

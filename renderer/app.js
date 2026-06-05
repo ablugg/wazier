@@ -312,7 +312,12 @@ document.getElementById('upload-doc-btn').addEventListener('click', async () => 
   api.onDocProgress(msg => { progress.textContent = msg })
 
   for (const filePath of paths) {
-    await api.addDoc(filePath)
+    try {
+      await api.addDoc(filePath)
+    } catch (e) {
+      progress.textContent = `Failed: ${e.message}`
+      await new Promise(r => setTimeout(r, 3000))
+    }
   }
 
   btn.disabled = false

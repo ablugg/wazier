@@ -1,6 +1,6 @@
 {
   "name": "wazier",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Private local AI assistant — runs 100% offline",
   "main": "main.js",
   "author": "Wazier",
@@ -13,7 +13,8 @@
   "dependencies": {
     "electron-store": "^8.1.0",
     "mammoth": "^1.12.0",
-    "pdf-parse": "^2.4.5"
+    "pdf-parse": "^2.4.5",
+    "pdf2json": "^4.0.3"
   },
   "devDependencies": {
     "electron": "^28.0.0",

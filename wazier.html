@@ -848,14 +848,14 @@
         <span class="feature-num">03</span>
         <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
         <div class="feature-name">7-Day Auto-Forget</div>
-        <p class="feature-desc">Conversations dissolve after 7 days by default. The right to be forgotten is built in · not buried in a settings menu.</p>
+        <p class="feature-desc">Chat history dissolves after 7 days by default. The right to be forgotten is built in, not buried in a settings menu. This applies to conversations only. Your document vault is a separate, permanent store that you control independently.</p>
       </div>
 
       <div class="feature-card reveal" style="transition-delay:.1s;">
         <span class="feature-num">04</span>
         <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        <div class="feature-name">Permanent Memory, Your Choice</div>
-        <p class="feature-desc">When something matters enough to keep forever, you decide. Memories are pinned locally and encrypted, never sent anywhere.</p>
+        <div class="feature-name">Two Vaults, One Rule</div>
+        <p class="feature-desc">Wazier keeps two separate encrypted stores. Your chat vault follows the 7-day cycle. Your document vault persists forever. Both live only on your machine. Neither ever touches a server. You manage each one independently.</p>
       </div>
 
       <div class="feature-card reveal" style="transition-delay:.2s;">
@@ -935,13 +935,26 @@
         <div class="how-step reveal" style="transition-delay:.4s;">
           <span class="how-step-num">04</span>
           <div class="how-step-content">
-            <div class="how-step-title">Your AI grows with you.</div>
-            <p class="how-step-text">Wazier learns your preferences from the memory you choose to keep. A personal agent that gets sharper without ever being watched.</p>
+            <div class="how-step-title">Feed it documents. It learns forever.</div>
+            <p class="how-step-text">Drop in a PDF, a note, a research paper. Wazier chunks it, embeds it using nomic-embed-text running inside Ollama on your machine, and stores the vectors in an encrypted local file (docs.enc). Every step is a localhost call or in-memory computation. At chat time, your query is embedded the same way, the top matching chunks are retrieved, and injected into context. Your document vault never expires and never leaves your device.</p>
+          </div>
+        </div>
+        <div class="how-step reveal" style="transition-delay:.5s;">
+          <span class="how-step-num">05</span>
+          <div class="how-step-content">
+            <div class="how-step-title">Two stores. Two rules. Total clarity.</div>
+            <p class="how-step-text">Wazier maintains two separate encrypted vaults. The chat vault follows the 7-day expiry cycle, conversations purge automatically and leave nothing behind. The document vault is permanent and only grows when you add to it. You control each one independently. There is no overlap, no confusion, and no surprises about what gets kept.</p>
           </div>
         </div>
       </div>
     </div>
     <div class="memory-visual reveal">
+      <div class="memory-card">
+        <span class="memory-card-tag">Document Vault · Permanent · Encrypted</span>
+        <div class="memory-card-title">docs.enc · Local RAG store</div>
+        <div class="memory-card-meta">Never expires · nomic-embed-text · AES-256-GCM · Local only</div>
+        <div class="memory-card-bar"><div class="memory-card-fill permanent"></div></div>
+      </div>
       <div class="memory-card">
         <span class="memory-card-tag">Permanent Memory · Encrypted</span>
         <div class="memory-card-title">Project Lighthouse brainstorm</div>
@@ -1030,9 +1043,9 @@
     <h2 class="cta-title reveal">Your thoughts<br>are <span class="accent">sacred.</span></h2>
     <p class="cta-sub reveal">Start using AI the way it was always meant to feel · like thinking in private.</p>
     <div class="cta-actions reveal">
-      <a href="https://github.com/ablugg/wazier/releases/latest/download/Wazier-1.0.5-arm64.dmg" class="btn-primary">Download for Mac</a>
-      <a href="https://github.com/ablugg/wazier/releases/latest/download/Wazier.Setup.1.0.5.exe" class="btn-ghost">Download for Windows</a>
-      <a href="https://github.com/ablugg/wazier/releases/latest/download/Wazier-1.0.5.AppImage" class="btn-ghost">Download for Linux</a>
+      <a href="https://github.com/ablugg/wazier/releases/latest/download/Wazier-1.0.6-arm64.dmg" class="btn-primary">Download for Mac</a>
+      <a href="https://github.com/ablugg/wazier/releases/latest/download/Wazier.Setup.1.0.6.exe" class="btn-ghost">Download for Windows</a>
+      <a href="https://github.com/ablugg/wazier/releases/latest/download/Wazier-1.0.6.AppImage" class="btn-ghost">Download for Linux</a>
     </div>
     <p style="margin-top:28px; font-size:15px; color:rgba(237,232,216,0.85); line-height:2;">
       Mac users: after installing, open Terminal and run:<br>
