@@ -17,7 +17,7 @@ async function extractText(filePath) {
   }
 
   if (ext === '.pdf') {
-    const pdfParse = require('pdf-parse')
+    const pdfParse = require('pdf-parse/lib/pdf-parse.js')
     const buf = fs.readFileSync(filePath)
     const result = await pdfParse(buf)
     return result.text

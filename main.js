@@ -125,6 +125,17 @@ async function checkModel() {
   } catch { return false }
 }
 
+async function ensureEmbedModel() {
+  const res = await netGet(`${OLLAMA}/api/tags`)
+  if (!res) return
+  try {
+    const { models } = JSON.parse(res.body)
+    if (!models.some(m => m.name.startsWith('nomic-embed-text'))) {
+      await netPost(`${OLLAMA}/api/pull`, { name: 'nomic-embed-text', stream: false }, null)
+    }
+  } catch {}
+}
+
 // ── IPC: Setup ─────────────────────────────────────────────────────────────────
 
 ipcMain.handle('setup:check', async () => {
@@ -132,6 +143,7 @@ ipcMain.handle('setup:check', async () => {
   if (!ollamaRunning) return { status: 'no-ollama' }
   const modelReady = await checkModel()
   if (!modelReady) return { status: 'no-model' }
+  ensureEmbedModel()
   return { status: 'ready' }
 })
 
