@@ -28,13 +28,13 @@
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; overflow-x: hidden; }
+  html { scroll-behavior: smooth; overflow-x: clip; }
 
   body {
     font-family: 'DM Sans', sans-serif;
     background: var(--night);
     color: var(--ivory);
-    overflow-x: hidden;
+    overflow-x: clip;
     cursor: none;
   }
 
@@ -731,7 +731,7 @@
   }
 
   @media(max-width:900px){
-    html, body { overflow-x: hidden; }
+    html, body { overflow-x: clip; }
 
     /* cursor — hide on touch */
     .cursor, .cursor-ring { display: none; }
