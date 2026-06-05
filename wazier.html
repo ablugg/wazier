@@ -28,7 +28,7 @@
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; overflow-x: hidden; }
 
   body {
     font-family: 'DM Sans', sans-serif;
@@ -730,17 +730,58 @@
   }
 
   @media(max-width:900px){
-    nav{padding:22px 28px;}
-    .nav-links{display:none;}
-    #manifesto,#how,#opensource{padding:80px 28px;}
-    .manifesto-inner,.how-inner,.os-inner{grid-template-columns:1fr;gap:50px;}
-    #features{padding:80px 28px;}
-    .features-grid{grid-template-columns:1fr;}
-    .privacy-stats{flex-direction:column;gap:36px;}
-    .privacy-band{padding:52px 28px;}
-    footer{flex-direction:column;gap:22px;text-align:center;}
-    .footer-links{flex-wrap:wrap;justify-content:center;}
-    #cta,#privacy{padding-left:28px;padding-right:28px;}
+    html, body { overflow-x: hidden; }
+
+    /* cursor — hide on touch */
+    .cursor, .cursor-ring { display: none; }
+    body { cursor: auto; }
+
+    /* nav */
+    nav { padding: 20px 24px; }
+    .nav-links { display: none; }
+    .nav-cta { padding: 9px 18px; font-size: 10px; }
+
+    /* hero */
+    .hero-content { padding: 0 24px; }
+    .hero-actions { flex-direction: column; align-items: center; gap: 12px; }
+    .btn-primary, .btn-ghost { width: 100%; max-width: 320px; text-align: center; padding: 14px 24px; }
+    .orb-1 { width: 300px; height: 300px; }
+    .orb-2 { width: 200px; height: 200px; }
+    .orb-3 { display: none; }
+
+    /* sections */
+    #manifesto, #how, #opensource { padding: 72px 24px; }
+    #features { padding: 72px 24px; }
+    #privacy { padding: 0 24px; }
+    #cta { padding: 100px 24px; }
+
+    /* grids — collapse to single column */
+    .manifesto-inner, .how-inner, .os-inner {
+      grid-template-columns: 1fr; gap: 48px;
+    }
+    .features-grid { grid-template-columns: 1fr; }
+    .feature-card { padding: 36px 28px; }
+
+    /* manifesto visual — reduce height */
+    .manifesto-visual { height: 300px; }
+    .lock-rings { width: 220px; height: 220px; }
+
+    /* how it works — remove sticky */
+    .memory-visual { position: static; transform: none; opacity: 1; }
+
+    /* privacy band */
+    .privacy-band { padding: 48px 24px; }
+    .privacy-stats { flex-direction: column; align-items: center; gap: 32px; }
+    .privacy-stat-num { font-size: 40px; }
+
+    /* cta */
+    .cta-actions { flex-direction: column; align-items: center; gap: 12px; }
+    #cta::before { width: 100%; }
+
+    /* footer */
+    footer { flex-direction: column; gap: 20px; text-align: center; padding: 36px 24px; }
+    .footer-links { flex-wrap: wrap; justify-content: center; gap: 20px; }
+    .footer-right { display: none; }
   }
 </style>
 </head>
