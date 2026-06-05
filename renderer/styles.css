@@ -280,6 +280,19 @@ html, body {
   font-family: var(--font-head);
 }
 
+.update-btn {
+  display: none; width: 100%; padding: 8px;
+  background: rgba(201,168,76,0.12);
+  border: 1px solid rgba(201,168,76,0.35);
+  color: var(--gold);
+  font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  border-radius: 6px; cursor: pointer;
+  font-family: var(--font-head);
+  transition: all .2s; margin-bottom: 8px;
+}
+.update-btn:hover { background: rgba(201,168,76,0.22); }
+.update-btn.visible { display: block; }
+
 /* ── Chat area ────────────────────────────────────────────────────────────── */
 
 #chat-area {

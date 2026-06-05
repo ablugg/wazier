@@ -5,6 +5,7 @@ const crypto = require('crypto')
 const Store = require('electron-store')
 const { DocStore, addDocument, listDocuments, deleteDocument, retrieveContext } = require('./rag')
 
+const VERSION = '1.0.7'
 const MODEL = 'llama3.2:3b'
 const SYSTEM_PROMPT = 'You are WAZIER, a personal AI assistant running locally on the user\'s device. You are private, helpful, and direct.'
 const RETENTION_DAYS = 7
@@ -73,10 +74,11 @@ app.on('window-all-closed', () => {
 
 // ── Ollama helpers using electron.net ──────────────────────────────────────────
 
-function netGet(url) {
+function netGet(url, headers = {}) {
   return new Promise((resolve) => {
     try {
       const req = net.request({ method: 'GET', url })
+      Object.entries(headers).forEach(([k, v]) => req.setHeader(k, v))
       const timer = setTimeout(() => { try { req.abort() } catch {} resolve(null) }, 3000)
       req.on('response', (res) => {
         clearTimeout(timer)
@@ -164,6 +166,22 @@ ipcMain.handle('setup:pull-model', async () => {
 
 ipcMain.handle('setup:open-ollama', () => {
   shell.openExternal('https://ollama.com')
+})
+
+ipcMain.handle('update:check', async () => {
+  try {
+    const res = await netGet('https://api.github.com/repos/ablugg/wazier/releases/latest', { 'User-Agent': 'Wazier-App' })
+    if (!res || res.status !== 200) return null
+    const { tag_name } = JSON.parse(res.body)
+    const latest = tag_name.replace(/^v/, '')
+    const current = VERSION
+    if (latest !== current) return latest
+    return null
+  } catch { return null }
+})
+
+ipcMain.handle('update:open', () => {
+  shell.openExternal('https://github.com/ablugg/wazier/releases/latest')
 })
 
 ipcMain.handle('setup:launch-ollama', () => {

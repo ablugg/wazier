@@ -29,4 +29,8 @@ contextBridge.exposeInMainWorld('wazier', {
   markImportant: (sessionId) => ipcRenderer.invoke('storage:mark-important', sessionId),
   clearUnimportant: () => ipcRenderer.invoke('storage:clear-unimportant'),
   purgeOld: () => ipcRenderer.invoke('storage:purge-old'),
+
+  // Updates
+  checkForUpdate: () => ipcRenderer.invoke('update:check'),
+  openUpdate: () => ipcRenderer.invoke('update:open'),
 })

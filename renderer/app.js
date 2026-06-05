@@ -99,6 +99,16 @@ async function launchApp() {
   show('app-screen')
   await Promise.all([loadSidebar(), loadDocs()])
   startNewChat()
+  checkForUpdate()
+}
+
+async function checkForUpdate() {
+  const latest = await api.checkForUpdate()
+  if (!latest) return
+  const btn = document.getElementById('update-btn')
+  btn.textContent = `⬇ Update v${latest} available`
+  btn.classList.add('visible')
+  btn.addEventListener('click', () => api.openUpdate())
 }
 
 // ── Sidebar ────────────────────────────────────────────────────────────────────
