@@ -182,4 +182,19 @@ async function retrieveContext(query, docStore, netRequest) {
     top.map(s => `[${s.doc}]\n${s.text}`).join('\n\n---\n\n') + '\n\n'
 }
 
-module.exports = { DocStore, addDocument, listDocuments, deleteDocument, retrieveContext }
+async function addRawText(name, text, docStore, netRequest, onProgress) {
+  const chunks = chunkText(text)
+  const embedded = []
+  for (let i = 0; i < chunks.length; i++) {
+    if (onProgress) onProgress(`Embedding ${i + 1}/${chunks.length}…`)
+    const embedding = await embedText(chunks[i], netRequest)
+    embedded.push({ text: chunks[i], embedding })
+  }
+  const data = docStore.load()
+  const id = crypto.randomBytes(4).toString('hex')
+  data.documents.push({ id, name, uploadedAt: new Date().toISOString(), chunks: embedded, auto: true })
+  docStore.save(data)
+  return id
+}
+
+module.exports = { DocStore, addDocument, addRawText, listDocuments, deleteDocument, retrieveContext }

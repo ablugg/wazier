@@ -33,4 +33,12 @@ contextBridge.exposeInMainWorld('wazier', {
   // Updates
   checkForUpdate: () => ipcRenderer.invoke('update:check'),
   openUpdate: () => ipcRenderer.invoke('update:open'),
+
+  // Sync
+  syncStatus: () => ipcRenderer.invoke('sync:status'),
+  syncRun: () => ipcRenderer.invoke('sync:run'),
+  syncToggle: (sourceId, enabled) => ipcRenderer.invoke('sync:toggle', { sourceId, enabled }),
+  onSyncProgress: (cb) => ipcRenderer.on('sync:progress', (_, msg) => cb(msg)),
+  onSyncDone: (cb) => ipcRenderer.on('sync:done', () => cb()),
+  offSync: () => { ipcRenderer.removeAllListeners('sync:progress'); ipcRenderer.removeAllListeners('sync:done') },
 })

@@ -1,6 +1,6 @@
 {
   "name": "wazier",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Private local AI assistant — runs 100% offline",
   "main": "main.js",
   "author": "Wazier",
@@ -48,6 +48,7 @@
       "main.js",
       "preload.js",
       "rag.js",
+      "sync.js",
       "renderer/**",
       "node_modules/**"
     ]

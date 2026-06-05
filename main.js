@@ -4,8 +4,9 @@ const fs = require('fs')
 const crypto = require('crypto')
 const Store = require('electron-store')
 const { DocStore, addDocument, listDocuments, deleteDocument, retrieveContext } = require('./rag')
+const { runSync, isDue, getStatus, toggleSource } = require('./sync')
 
-const VERSION = '1.0.7'
+const VERSION = '1.0.8'
 const MODEL = 'llama3.2:3b'
 const SYSTEM_PROMPT = 'You are WAZIER, a personal AI assistant running locally on the user\'s device. You are private, helpful, and direct.'
 const RETENTION_DAYS = 7
@@ -146,6 +147,11 @@ ipcMain.handle('setup:check', async () => {
   const modelReady = await checkModel()
   if (!modelReady) return { status: 'no-model' }
   ensureEmbedModel()
+  if (isDue(store)) {
+    setTimeout(() => runSync(store, docStore, net.request, msg => {
+      mainWindow.webContents.send('sync:progress', msg)
+    }).then(() => mainWindow.webContents.send('sync:done')).catch(() => {}), 3000)
+  }
   return { status: 'ready' }
 })
 
@@ -217,6 +223,21 @@ ipcMain.handle('docs:add', async (event, filePath) => {
 })
 
 ipcMain.handle('docs:list', () => listDocuments(docStore))
+
+// ── IPC: Sync ──────────────────────────────────────────────────────────────────
+
+ipcMain.handle('sync:status', () => getStatus(store))
+
+ipcMain.handle('sync:run', async () => {
+  await runSync(store, docStore, net.request, msg => {
+    mainWindow.webContents.send('sync:progress', msg)
+  })
+  mainWindow.webContents.send('sync:done')
+})
+
+ipcMain.handle('sync:toggle', (event, { sourceId, enabled }) => {
+  toggleSource(store, sourceId, enabled)
+})
 
 ipcMain.handle('docs:delete', (event, id) => deleteDocument(id, docStore))
 

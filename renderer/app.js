@@ -279,6 +279,7 @@ document.querySelectorAll('.sidebar-tab').forEach(tab => {
 // ── Docs ───────────────────────────────────────────────────────────────────────
 
 async function loadDocs() {
+  loadSyncStatus()
   const docs = await api.listDocs()
   const list = document.getElementById('doc-list')
   list.innerHTML = ''
@@ -334,6 +335,55 @@ document.getElementById('upload-doc-btn').addEventListener('click', async () => 
   progress.classList.add('hidden')
   api.offDocProgress()
   loadDocs()
+})
+
+// ── Sync ───────────────────────────────────────────────────────────────────────
+
+async function loadSyncStatus() {
+  const { lastSync, sources } = await api.syncStatus()
+  const statusEl = document.getElementById('sync-status')
+  const sourcesEl = document.getElementById('sync-sources')
+
+  if (lastSync) {
+    const date = new Date(lastSync).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+    statusEl.textContent = `Last synced ${date}`
+  } else {
+    statusEl.textContent = 'Never synced'
+  }
+
+  sourcesEl.innerHTML = ''
+  sources.forEach(source => {
+    const row = document.createElement('div')
+    row.className = 'sync-source'
+    row.innerHTML = `
+      <span>${source.name}</span>
+      <button class="sync-toggle ${source.enabled ? 'on' : ''}" data-id="${source.id}"></button>
+    `
+    row.querySelector('.sync-toggle').addEventListener('click', async (e) => {
+      const btn = e.currentTarget
+      const enabled = !btn.classList.contains('on')
+      btn.classList.toggle('on', enabled)
+      await api.syncToggle(source.id, enabled)
+    })
+    sourcesEl.appendChild(row)
+  })
+}
+
+document.getElementById('sync-now-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('sync-now-btn')
+  const statusEl = document.getElementById('sync-status')
+  btn.disabled = true
+
+  api.offSync()
+  api.onSyncProgress(msg => { statusEl.textContent = msg })
+  api.onSyncDone(() => {
+    api.offSync()
+    btn.disabled = false
+    loadSyncStatus()
+    loadDocs()
+  })
+
+  await api.syncRun()
 })
 
 document.getElementById('clear-btn').addEventListener('click', async () => {
