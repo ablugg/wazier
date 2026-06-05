@@ -148,7 +148,7 @@ function renderMessages() {
   container.innerHTML = ''
 
   if (history.length === 0) {
-    container.innerHTML = '<div id="empty-state"><div class="big">WAZIER</div><div>How can I help you today?</div></div>'
+    container.innerHTML = '<div id="empty-state"><div class="big">WAZIER</div><div class="sub">How can I help you today?</div></div>'
     return
   }
 
