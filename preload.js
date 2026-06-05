@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('wazier', {
   checkSetup: () => ipcRenderer.invoke('setup:check'),
   pullModel: () => ipcRenderer.invoke('setup:pull-model'),
   openOllama: () => ipcRenderer.invoke('setup:open-ollama'),
+  launchOllama: () => ipcRenderer.invoke('setup:launch-ollama'),
   onPullProgress: (cb) => ipcRenderer.on('setup:pull-progress', (_, pct) => cb(pct)),
 
   // Chat

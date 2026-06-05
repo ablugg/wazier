@@ -1,6 +1,5 @@
-const { app, BrowserWindow, ipcMain, safeStorage, shell } = require('electron')
+const { app, BrowserWindow, ipcMain, safeStorage, shell, net } = require('electron')
 const path = require('path')
-const http = require('http')
 const fs = require('fs')
 const crypto = require('crypto')
 const Store = require('electron-store')
@@ -8,6 +7,7 @@ const Store = require('electron-store')
 const MODEL = 'llama3.2:3b'
 const SYSTEM_PROMPT = 'You are WAZIER, a personal AI assistant running locally on the user\'s device. You are private, helpful, and direct.'
 const RETENTION_DAYS = 7
+const OLLAMA = 'http://localhost:11434'
 
 let store = null
 let mainWindow = null
@@ -67,55 +67,58 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
 })
 
-// ── Ollama helpers ─────────────────────────────────────────────────────────────
+// ── Ollama helpers using electron.net ──────────────────────────────────────────
 
-function ollamaRequest(path, body) {
+function netGet(url) {
+  return new Promise((resolve) => {
+    try {
+      const req = net.request({ method: 'GET', url })
+      const timer = setTimeout(() => { try { req.abort() } catch {} resolve(null) }, 3000)
+      req.on('response', (res) => {
+        clearTimeout(timer)
+        let raw = ''
+        res.on('data', chunk => { raw += chunk.toString() })
+        res.on('end', () => resolve({ status: res.statusCode, body: raw }))
+      })
+      req.on('error', () => { clearTimeout(timer); resolve(null) })
+      req.end()
+    } catch (e) { resolve(null) }
+  })
+}
+
+function netPost(url, body, onChunk) {
   return new Promise((resolve, reject) => {
-    const data = JSON.stringify(body)
-    const req = http.request(
-      { hostname: 'localhost', port: 11434, path, method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) } },
-      (res) => {
-        let raw = ''
-        res.on('data', chunk => raw += chunk)
-        res.on('end', () => resolve(raw))
-      }
-    )
-    req.on('error', reject)
-    req.write(data)
-    req.end()
-  })
-}
-
-function checkOllama() {
-  return new Promise((resolve) => {
-    const req = http.request(
-      { hostname: 'localhost', port: 11434, path: '/', method: 'GET' },
-      (res) => resolve(res.statusCode === 200)
-    )
-    req.on('error', () => resolve(false))
-    req.end()
-  })
-}
-
-function checkModel() {
-  return new Promise((resolve) => {
-    const req = http.request(
-      { hostname: 'localhost', port: 11434, path: '/api/tags', method: 'GET' },
-      (res) => {
-        let raw = ''
-        res.on('data', chunk => raw += chunk)
-        res.on('end', () => {
-          try {
-            const { models } = JSON.parse(raw)
-            resolve(models.some(m => m.name.startsWith('llama3.2:3b')))
-          } catch { resolve(false) }
+    try {
+      const req = net.request({ method: 'POST', url })
+      req.setHeader('Content-Type', 'application/json')
+      req.on('response', (res) => {
+        let full = ''
+        res.on('data', chunk => {
+          const str = chunk.toString()
+          full += str
+          if (onChunk) onChunk(str)
         })
-      }
-    )
-    req.on('error', () => resolve(false))
-    req.end()
+        res.on('end', () => resolve(full))
+      })
+      req.on('error', reject)
+      req.write(JSON.stringify(body))
+      req.end()
+    } catch (e) { reject(e) }
   })
+}
+
+async function checkOllama() {
+  const res = await netGet(`${OLLAMA}/`)
+  return res !== null && res.status === 200
+}
+
+async function checkModel() {
+  const res = await netGet(`${OLLAMA}/api/tags`)
+  if (!res) return false
+  try {
+    const { models } = JSON.parse(res.body)
+    return models.some(m => m.name.startsWith('llama3.2:3b'))
+  } catch { return false }
 }
 
 // ── IPC: Setup ─────────────────────────────────────────────────────────────────
@@ -128,32 +131,18 @@ ipcMain.handle('setup:check', async () => {
   return { status: 'ready' }
 })
 
-ipcMain.handle('setup:pull-model', async (event) => {
-  return new Promise((resolve, reject) => {
-    const data = JSON.stringify({ name: MODEL, stream: true })
-    const req = http.request(
-      { hostname: 'localhost', port: 11434, path: '/api/pull', method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) } },
-      (res) => {
-        res.on('data', chunk => {
-          const lines = chunk.toString().split('\n').filter(Boolean)
-          for (const line of lines) {
-            try {
-              const obj = JSON.parse(line)
-              if (obj.total && obj.completed) {
-                const pct = Math.round((obj.completed / obj.total) * 100)
-                mainWindow.webContents.send('setup:pull-progress', pct)
-              }
-              if (obj.status === 'success') resolve()
-            } catch {}
-          }
-        })
-        res.on('end', resolve)
-      }
-    )
-    req.on('error', reject)
-    req.write(data)
-    req.end()
+ipcMain.handle('setup:pull-model', async () => {
+  await netPost(`${OLLAMA}/api/pull`, { name: MODEL, stream: true }, (chunk) => {
+    const lines = chunk.split('\n').filter(Boolean)
+    for (const line of lines) {
+      try {
+        const obj = JSON.parse(line)
+        if (obj.total && obj.completed) {
+          const pct = Math.round((obj.completed / obj.total) * 100)
+          mainWindow.webContents.send('setup:pull-progress', pct)
+        }
+      } catch {}
+    }
   })
 })
 
@@ -161,38 +150,38 @@ ipcMain.handle('setup:open-ollama', () => {
   shell.openExternal('https://ollama.com')
 })
 
+ipcMain.handle('setup:launch-ollama', () => {
+  const { spawn } = require('child_process')
+  const ollamaPath = process.platform === 'win32' ? 'ollama.exe' : 'ollama'
+  const proc = spawn(ollamaPath, ['serve'], {
+    detached: true,
+    stdio: 'ignore',
+    env: { ...process.env },
+  })
+  proc.unref()
+})
+
 // ── IPC: Chat ──────────────────────────────────────────────────────────────────
 
 ipcMain.handle('chat:send', async (event, messages) => {
   const full = [{ role: 'system', content: SYSTEM_PROMPT }, ...messages]
-  const data = JSON.stringify({ model: MODEL, messages: full, stream: true })
+  let fullResponse = ''
 
-  return new Promise((resolve, reject) => {
-    const req = http.request(
-      { hostname: 'localhost', port: 11434, path: '/api/chat', method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) } },
-      (res) => {
-        let fullResponse = ''
-        res.on('data', chunk => {
-          const lines = chunk.toString().split('\n').filter(Boolean)
-          for (const line of lines) {
-            try {
-              const obj = JSON.parse(line)
-              const token = obj.message?.content || ''
-              if (token) {
-                fullResponse += token
-                mainWindow.webContents.send('chat:token', token)
-              }
-            } catch {}
-          }
-        })
-        res.on('end', () => resolve(fullResponse))
-      }
-    )
-    req.on('error', reject)
-    req.write(data)
-    req.end()
+  await netPost(`${OLLAMA}/api/chat`, { model: MODEL, messages: full, stream: true }, (chunk) => {
+    const lines = chunk.split('\n').filter(Boolean)
+    for (const line of lines) {
+      try {
+        const obj = JSON.parse(line)
+        const token = obj.message?.content || ''
+        if (token) {
+          fullResponse += token
+          mainWindow.webContents.send('chat:token', token)
+        }
+      } catch {}
+    }
   })
+
+  return fullResponse
 })
 
 // ── IPC: Storage ───────────────────────────────────────────────────────────────
@@ -208,10 +197,7 @@ ipcMain.handle('storage:new-session', () => {
 ipcMain.handle('storage:append', (event, { sessionId, role, content }) => {
   const sessions = store.get('sessions')
   const s = sessions.find(s => s.id === sessionId)
-  if (s) {
-    s.messages.push({ role, content })
-    store.set('sessions', sessions)
-  }
+  if (s) { s.messages.push({ role, content }); store.set('sessions', sessions) }
 })
 
 ipcMain.handle('storage:list', () => {

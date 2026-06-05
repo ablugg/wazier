@@ -10,19 +10,31 @@ let recognition = null
 
 async function runSetup() {
   show('setup-screen')
-  const { status } = await api.checkSetup()
+  setStatus('Checking…')
+  setActions('')
+
+  let result
+  try {
+    result = await api.checkSetup()
+  } catch (e) {
+    setStatus('Something went wrong. Make sure Ollama is installed and try again.')
+    setActions(`<button class="btn btn-primary" onclick="runSetup()">Retry</button>`)
+    return
+  }
+
+  const { status } = result
 
   if (status === 'no-ollama') {
-    setStatus('Ollama is not installed or not running.')
+    setStatus('Ollama isn\'t running. Click Start Ollama — no window will open, it runs quietly in the background.')
     setActions(`
-      <button class="btn btn-primary" onclick="openOllama()">Download Ollama</button>
-      <button class="btn btn-ghost" onclick="retrySetup()">I've installed it — retry</button>
+      <button class="btn btn-primary" onclick="launchOllama()">Start Ollama</button>
+      <button class="btn btn-ghost" onclick="openOllama()">Download Ollama</button>
     `)
     return
   }
 
   if (status === 'no-model') {
-    setStatus('Ollama is running. The AI model needs to be downloaded once (~2 GB).')
+    setStatus('Almost ready. The AI model needs to download once (~2 GB).')
     setActions(`<button class="btn btn-primary" onclick="pullModel()">Download Model</button>`)
     return
   }
@@ -39,7 +51,32 @@ function setActions(html) {
 }
 
 window.openOllama = () => api.openOllama()
-window.retrySetup = () => runSetup()
+
+window.launchOllama = async () => {
+  setActions('')
+  setStatus('Starting Ollama in the background…')
+  await api.launchOllama()
+
+  let attempts = 0
+  const poll = setInterval(async () => {
+    attempts++
+    const { status } = await api.checkSetup()
+    if (status !== 'no-ollama') {
+      clearInterval(poll)
+      runSetup()
+      return
+    }
+    setStatus(`Starting Ollama… (${attempts}s)`)
+    if (attempts >= 20) {
+      clearInterval(poll)
+      setStatus('Ollama is taking a while. Is it installed? Try downloading it below.')
+      setActions(`
+        <button class="btn btn-primary" onclick="launchOllama()">Try Again</button>
+        <button class="btn btn-ghost" onclick="openOllama()">Download Ollama</button>
+      `)
+    }
+  }, 1000)
+}
 
 window.pullModel = async () => {
   setActions('')
