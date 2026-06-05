@@ -569,12 +569,15 @@
     transition: stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);
   }
   #privacy-band-card.glowing {
-    animation: bandGlow 2.5s ease forwards;
+    animation: bandGlowIn 1.2s ease forwards, bandGlowPulse 3.5s ease-in-out 1.2s infinite;
   }
-  @keyframes bandGlow {
+  @keyframes bandGlowIn {
     0%   { box-shadow: none; }
-    40%  { box-shadow: 0 0 40px rgba(201,168,76,0.22), 0 0 80px rgba(201,168,76,0.1), inset 0 0 40px rgba(201,168,76,0.05); }
-    100% { box-shadow: 0 0 24px rgba(201,168,76,0.1), 0 0 48px rgba(201,168,76,0.05), inset 0 0 20px rgba(201,168,76,0.03); }
+    100% { box-shadow: 0 0 32px rgba(201,168,76,0.18), 0 0 64px rgba(201,168,76,0.08), inset 0 0 24px rgba(201,168,76,0.04); }
+  }
+  @keyframes bandGlowPulse {
+    0%,100% { box-shadow: 0 0 32px rgba(201,168,76,0.18), 0 0 64px rgba(201,168,76,0.08), inset 0 0 24px rgba(201,168,76,0.04); }
+    50%     { box-shadow: 0 0 56px rgba(201,168,76,0.32), 0 0 100px rgba(201,168,76,0.14), inset 0 0 40px rgba(201,168,76,0.08); }
   }
 
   .privacy-band-title {
