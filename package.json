@@ -1,6 +1,6 @@
 {
   "name": "wazier",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "Private local AI assistant — runs 100% offline",
   "main": "main.js",
   "author": "Wazier",

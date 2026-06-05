@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wazier: Private by Nature</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=DM+Sans:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ── ISHTAR GATE PALETTE ──────────────────────────────────
+     Ishtar Gate: deep lapis night, vivid cobalt blue glaze,
+     warm lion-gold, dusty terracotta, ivory relief.
+  ─────────────────────────────────────────────────────────── */
+  :root {
+    --night:      #0A0D18;       /* deepest background – night sky behind the gate */
+    --lapis:      #0E1730;       /* rich lapis lazuli dark */
+    --cobalt:     #1A2E6E;       /* cobalt blue tile mid-tone */
+    --cobalt-mid: #2244A8;       /* brighter cobalt accent */
+    --glaze:      #3A6BC4;       /* vivid glazed blue highlight */
+    --glaze-pale: #6B9FDD;       /* pale glaze shimmer */
+    --gold:       #C9A84C;       /* Babylonian gold frieze */
+    --gold-light: #E8C96A;       /* bright gold highlight */
+    --gold-pale:  #F0DFA0;       /* near-white gold */
+    --terra:      #8C4A2A;       /* terracotta lion relief */
+    --ivory:      #EDE8D8;       /* carved ivory / pale relief */
+    --ivory-dim:  rgba(237,232,216,0.55);
+    --mist:       rgba(237,232,216,0.06);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--night);
+    color: var(--ivory);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CURSOR */
+  .cursor {
+    position: fixed; width: 10px; height: 10px;
+    background: var(--gold); border-radius: 50%;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: width .3s, height .3s;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    position: fixed; width: 40px; height: 40px;
+    border: 1px solid rgba(201,168,76,.4); border-radius: 50%;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: width .3s, height .3s;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 26px 60px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: linear-gradient(to bottom, rgba(10,13,24,.96), transparent);
+  }
+  .nav-logo {
+    font-family: 'Inter', sans-serif;
+    font-size: 22px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ivory);
+  }
+  .nav-logo span { color: var(--gold); }
+  .nav-links { display: flex; gap: 40px; }
+  .nav-links a {
+    font-size: 12px; font-weight: 400;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(237,232,216,.5); text-decoration: none;
+    transition: color .3s;
+  }
+  .nav-links a:hover { color: var(--gold-light); }
+  .nav-cta {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 10px 26px;
+    border: 1px solid rgba(201,168,76,.45);
+    color: var(--gold-light); text-decoration: none;
+    border-radius: 2px;
+    transition: background .3s, border-color .3s, color .3s;
+  }
+  .nav-cta:hover { background: rgba(201,168,76,.12); border-color: var(--gold); color: var(--ivory); }
+
+  /* HERO */
+  #hero {
+    position: relative; height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    overflow: hidden; text-align: center;
+  }
+  #particleCanvas {
+    position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0;
+  }
+  .hero-bg-gradient {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(26,46,110,.65) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 15% 80%, rgba(58,107,196,.12) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 85% 20%, rgba(201,168,76,.08) 0%, transparent 60%),
+      linear-gradient(160deg, #060810 0%, #0A0D18 45%, #0C1020 100%);
+    z-index: 1;
+  }
+
+  /* Ishtar tile border top */
+  .hero-tile-bar {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; z-index: 5;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--gold) 0px, var(--gold) 12px,
+      transparent 12px, transparent 16px,
+      var(--cobalt-mid) 16px, var(--cobalt-mid) 28px,
+      transparent 28px, transparent 32px
+    );
+    opacity: 0.7;
+  }
+
+  .hero-content {
+    position: relative; z-index: 2;
+    max-width: 940px; padding: 0 40px;
+  }
+  .hero-eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.4em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 28px;
+    opacity: 0; animation: fadeUp 1s ease .4s forwards;
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+  }
+  .hero-eyebrow::before, .hero-eyebrow::after {
+    content: ''; display: block; width: 36px; height: 1px;
+    background: var(--gold); opacity: .45;
+  }
+  .hero-title {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(43px, 6.4vw, 87px);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    color: var(--ivory);
+    margin-bottom: 20px;
+    opacity: 0; animation: fadeUp 1.1s ease .6s forwards;
+    text-transform: uppercase;
+  }
+  .hero-title .accent { color: var(--gold); }
+  .hero-title .accent-blue { color: var(--glaze); }
+
+  .hero-subtitle-line {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(15px, 1.8vw, 20px);
+    font-weight: 300;
+    color: rgba(237,232,216,.45);
+    margin-bottom: 48px;
+    opacity: 0; animation: fadeUp 1.1s ease .8s forwards;
+    letter-spacing: 0.06em;
+  }
+  .hero-desc {
+    font-size: 16px; font-weight: 300; line-height: 1.85;
+    color: rgba(237,232,216,.58);
+    max-width: 560px; margin: 0 auto 56px;
+    opacity: 0; animation: fadeUp 1.1s ease 1s forwards;
+  }
+  .hero-actions {
+    display: flex; gap: 18px; justify-content: center;
+    opacity: 0; animation: fadeUp 1.1s ease 1.2s forwards;
+  }
+
+  .btn-primary {
+    padding: 15px 42px;
+    background: var(--gold);
+    color: var(--night);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    text-decoration: none; border-radius: 2px;
+    transition: background .3s, transform .3s, box-shadow .3s;
+    box-shadow: 0 8px 32px rgba(201,168,76,.22);
+  }
+  .btn-primary:hover {
+    background: var(--gold-light);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 48px rgba(201,168,76,.32);
+  }
+  .btn-ghost {
+    padding: 15px 42px;
+    border: 1px solid rgba(58,107,196,.5);
+    color: var(--glaze-pale);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    text-decoration: none; border-radius: 2px;
+    transition: border-color .3s, color .3s, background .3s;
+  }
+  .btn-ghost:hover {
+    border-color: var(--glaze);
+    color: var(--ivory);
+    background: rgba(58,107,196,.1);
+  }
+
+  .hero-scroll {
+    position: absolute; bottom: 40px; left: 50%;
+    transform: translateX(-50%); z-index: 2;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    opacity: 0; animation: fadeIn 1s ease 2s forwards;
+  }
+  .hero-scroll span {
+    font-family: 'Inter', sans-serif;
+    font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: rgba(237,232,216,.25);
+  }
+  .scroll-line {
+    width: 1px; height: 48px;
+    background: linear-gradient(to bottom, rgba(201,168,76,.6), transparent);
+    animation: scrollPulse 2s ease infinite;
+  }
+  @keyframes scrollPulse {
+    0%,100% { opacity:.4; transform:scaleY(1); }
+    50% { opacity:1; transform:scaleY(1.1); }
+  }
+
+  /* ORB FLOATERS */
+  .orb {
+    position: absolute; border-radius: 50%;
+    filter: blur(90px); z-index: 1; pointer-events: none;
+    animation: orbFloat linear infinite;
+  }
+  .orb-1 { width:600px;height:600px; background:radial-gradient(circle,rgba(26,46,110,.22) 0%,transparent 70%); top:-100px;left:-150px; animation-duration:20s; }
+  .orb-2 { width:400px;height:400px; background:radial-gradient(circle,rgba(58,107,196,.15) 0%,transparent 70%); bottom:0;right:-100px; animation-duration:26s;animation-delay:-8s; }
+  .orb-3 { width:300px;height:300px; background:radial-gradient(circle,rgba(201,168,76,.07) 0%,transparent 70%); top:50%;right:20%; animation-duration:19s;animation-delay:-13s; }
+  @keyframes orbFloat {
+    0%,100% { transform:translate(0,0) scale(1); }
+    25% { transform:translate(28px,-18px) scale(1.04); }
+    50% { transform:translate(-14px,28px) scale(.97); }
+    75% { transform:translate(-28px,-10px) scale(1.02); }
+  }
+
+  /* DIVIDER */
+  .divider {
+    width:100%; height:1px;
+    background:linear-gradient(to right, transparent, rgba(58,107,196,.25), transparent);
+  }
+
+  /* TILE PATTERN accent - reusable */
+  .tile-accent {
+    height: 2px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--gold) 0px, var(--gold) 8px,
+      transparent 8px, transparent 12px,
+      var(--cobalt-mid) 12px, var(--cobalt-mid) 20px,
+      transparent 20px, transparent 24px
+    );
+    opacity: 0.35;
+    margin: 0;
+  }
+
+  /* SHARED SECTION TEXT */
+  .section-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.45em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 18px;
+    opacity: 0; transform: translateY(20px);
+    transition: opacity .8s ease, transform .8s ease;
+  }
+  .section-label.visible { opacity:1; transform:translateY(0); }
+
+  .section-heading {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(38px, 4.5vw, 64px);
+    font-weight: 700; line-height: 1.0;
+    letter-spacing: -0.02em; text-transform: uppercase;
+    color: var(--ivory); margin-bottom: 24px;
+    opacity: 0; transform: translateY(28px);
+    transition: opacity .9s ease .1s, transform .9s ease .1s;
+  }
+  .section-heading.visible { opacity:1; transform:translateY(0); }
+  .section-heading .accent { color: var(--gold); }
+  .section-heading .accent-blue { color: var(--glaze); }
+
+  .section-body {
+    font-size: 15px; font-weight: 300; line-height: 1.9;
+    color: var(--ivory-dim); max-width: 520px;
+    opacity: 0; transform: translateY(18px);
+    transition: opacity .9s ease .2s, transform .9s ease .2s;
+  }
+  .section-body.visible { opacity:1; transform:translateY(0); }
+
+  /* MANIFESTO */
+  #manifesto {
+    padding: 140px 60px;
+    background: linear-gradient(180deg, var(--night) 0%, #0C1020 100%);
+  }
+  .manifesto-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 100px; align-items: center;
+  }
+  .manifesto-visual {
+    position: relative; height: 500px;
+    opacity: 0; transform: translateX(-40px);
+    transition: opacity 1s ease .3s, transform 1s ease .3s;
+  }
+  .manifesto-visual.visible { opacity:1; transform:translateX(0); }
+
+  /* LOCK ANIMATION – Ishtar blue rings */
+  .lock-scene {
+    width:100%; height:100%; position:relative;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .lock-rings { position:absolute; width:320px; height:320px; }
+  .lock-ring {
+    position:absolute; inset:0; border-radius:50%;
+    border: 1px solid transparent;
+    animation: spinRing linear infinite;
+  }
+  .lock-ring:nth-child(1) {
+    border-top-color: rgba(58,107,196,.5);
+    border-right-color: rgba(58,107,196,.2);
+    animation-duration: 12s;
+  }
+  .lock-ring:nth-child(2) {
+    inset:30px;
+    border-bottom-color: rgba(201,168,76,.35);
+    border-left-color: rgba(201,168,76,.15);
+    animation-duration:18s; animation-direction:reverse;
+  }
+  .lock-ring:nth-child(3) {
+    inset:60px;
+    border-top-color: rgba(107,159,221,.3);
+    animation-duration:22s;
+  }
+  @keyframes spinRing { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+
+  .lock-center {
+    position:relative; z-index:2;
+    width:120px; height:120px;
+    background: radial-gradient(circle at 40% 35%, rgba(58,107,196,.2), rgba(10,13,24,.85));
+    border: 1px solid rgba(58,107,196,.35);
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 0 60px rgba(58,107,196,.15), inset 0 0 40px rgba(10,13,24,.6);
+    animation: lockPulse 4s ease infinite;
+  }
+  @keyframes lockPulse {
+    0%,100% { box-shadow: 0 0 60px rgba(58,107,196,.15), inset 0 0 40px rgba(10,13,24,.6); }
+    50% { box-shadow: 0 0 100px rgba(58,107,196,.28), 0 0 40px rgba(201,168,76,.08), inset 0 0 40px rgba(10,13,24,.6); }
+  }
+  .lock-icon { width:44px; height:44px; color: var(--glaze); }
+  .lock-dots { position:absolute; inset:0; }
+  .lock-dot {
+    position:absolute; width:4px; height:4px;
+    background: var(--gold); border-radius:50%;
+    opacity:0; animation: dotAppear 3s ease infinite;
+  }
+  @keyframes dotAppear {
+    0%{opacity:0;transform:scale(0);}
+    30%{opacity:.8;transform:scale(1);}
+    70%{opacity:.5;transform:scale(1);}
+    100%{opacity:0;transform:scale(0);}
+  }
+
+  /* FEATURES */
+  #features { padding: 120px 60px; background: #0C1020; }
+  .features-inner { max-width:1200px; margin:0 auto; }
+  .features-header { text-align:center; margin-bottom:80px; }
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 1px; background: rgba(58,107,196,.12);
+  }
+  .feature-card {
+    background: #0C1020; padding: 50px 42px;
+    position:relative; overflow:hidden;
+    opacity:0; transform:translateY(28px);
+    transition: opacity .8s ease, transform .8s ease;
+    cursor: default;
+  }
+  .feature-card.visible { opacity:1; transform:translateY(0); }
+  .feature-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:1px;
+    background: linear-gradient(to right, transparent, rgba(58,107,196,.5), transparent);
+    transform: scaleX(0); transition: transform .6s ease;
+  }
+  .feature-card:hover::before { transform:scaleX(1); }
+  .feature-card::after {
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(circle at 50% 100%, rgba(58,107,196,.07) 0%, transparent 65%);
+    opacity:0; transition: opacity .5s ease;
+  }
+  .feature-card:hover::after { opacity:1; }
+  .feature-num {
+    font-family:'Inter',sans-serif;
+    font-size:10px; letter-spacing:.35em;
+    color: rgba(201,168,76,.35); margin-bottom:30px; display:block;
+  }
+  .feature-icon { width:44px; height:44px; color:var(--glaze); opacity:.85; margin-bottom:26px; display:block; }
+  .feature-name {
+    font-family:'Inter',sans-serif;
+    font-size:18px; font-weight:700;
+    letter-spacing:-0.01em; text-transform:uppercase;
+    color:var(--ivory); margin-bottom:14px;
+  }
+  .feature-desc {
+    font-size:14px; font-weight:300; line-height:1.8;
+    color: rgba(237,232,216,.42);
+  }
+
+  /* HOW IT WORKS */
+  #how {
+    padding: 140px 60px;
+    background: linear-gradient(180deg, #0C1020 0%, var(--night) 100%);
+  }
+  .how-inner {
+    max-width:1200px; margin:0 auto;
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:100px; align-items:start;
+  }
+  .how-steps { display:flex; flex-direction:column; }
+  .how-step {
+    display:flex; gap:30px; padding:38px 0;
+    border-bottom:1px solid rgba(58,107,196,.1);
+    opacity:0; transform:translateX(-18px);
+    transition: opacity .8s ease, transform .8s ease;
+  }
+  .how-step.visible { opacity:1; transform:translateX(0); }
+  .how-step:first-child { border-top:1px solid rgba(58,107,196,.1); }
+  .how-step-num {
+    font-family:'Inter',sans-serif;
+    font-size:44px; font-weight:700;
+    color: rgba(58,107,196,.18); line-height:1;
+    min-width:58px; transition: color .4s;
+  }
+  .how-step:hover .how-step-num { color: rgba(201,168,76,.4); }
+  .how-step-content { padding-top:6px; }
+  .how-step-title {
+    font-family:'Inter',sans-serif;
+    font-size:17px; font-weight:700;
+    letter-spacing:-0.01em; text-transform:uppercase;
+    color:var(--ivory); margin-bottom:10px;
+  }
+  .how-step-text {
+    font-size:14px; font-weight:300; line-height:1.8;
+    color: rgba(237,232,216,.42);
+  }
+
+  /* MEMORY VISUAL */
+  .memory-visual {
+    position:sticky; top:140px;
+    opacity:0; transform:translateX(38px);
+    transition: opacity 1s ease .3s, transform 1s ease .3s;
+  }
+  .memory-visual.visible { opacity:1; transform:translateX(0); }
+  .memory-card {
+    background: rgba(237,232,216,.03);
+    border: 1px solid rgba(58,107,196,.15);
+    border-radius:3px; padding:28px; margin-bottom:14px;
+    position:relative; overflow:hidden;
+    transition: border-color .3s;
+  }
+  .memory-card::before {
+    content:''; position:absolute; left:0; top:0; bottom:0;
+    width:2px; background: var(--glaze); opacity:.35;
+  }
+  .memory-card:hover { border-color:rgba(58,107,196,.35); }
+  .memory-card-tag {
+    font-family:'Inter',sans-serif;
+    font-size:9px; letter-spacing:.3em; text-transform:uppercase;
+    color:var(--glaze); opacity:.7; margin-bottom:10px; display:block;
+  }
+  .memory-card-title {
+    font-family:'Inter',sans-serif;
+    font-size:16px; font-weight:700;
+    color:var(--ivory); margin-bottom:6px;
+  }
+  .memory-card-meta { font-size:12px; color:rgba(237,232,216,.28); font-weight:300; }
+  .memory-card-bar {
+    height:2px; background:rgba(58,107,196,.12);
+    border-radius:1px; margin-top:16px; overflow:hidden;
+  }
+  .memory-card-fill {
+    height:100%;
+    background: linear-gradient(to right, var(--cobalt-mid), var(--glaze));
+    border-radius:1px;
+  }
+  .memory-card-fill.permanent {
+    width:100%; opacity:1; animation:none;
+    background: linear-gradient(to right, var(--gold), var(--gold-light));
+  }
+
+  .memory-card-fill.draining {
+    animation: barDrain 6s ease-in-out infinite alternate;
+  }
+  .memory-card-fill.draining-fast {
+    animation: barDrainFast 3.5s ease-in-out infinite alternate;
+  }
+  @keyframes barDrain { from{width:62%;opacity:.9;} to{width:38%;opacity:.55;} }
+  @keyframes barDrainFast { from{width:18%;opacity:.75;} to{width:8%;opacity:.35;} }
+
+  .memory-encryption {
+    text-align:center; padding:26px;
+    border:1px solid rgba(201,168,76,.18); border-radius:3px;
+    background: rgba(201,168,76,.04); margin-top:6px;
+  }
+  .memory-encryption-icon { font-size:26px; margin-bottom:8px; display:block; animation:shieldPulse 3s ease infinite; }
+  @keyframes shieldPulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.07);} }
+  .memory-encryption-label {
+    font-family:'Inter',sans-serif;
+    font-size:11px; letter-spacing:.25em; text-transform:uppercase;
+    color:var(--gold); font-weight:600;
+  }
+  .memory-encryption-detail { font-size:12px; color:rgba(237,232,216,.28); margin-top:5px; font-weight:300; }
+
+  /* PRIVACY BAND */
+  #privacy { padding: 0 60px; background: var(--night); }
+  .privacy-inner { max-width:1200px; margin:0 auto; }
+  .privacy-band {
+    background: linear-gradient(135deg,
+      rgba(26,46,110,.18) 0%,
+      rgba(58,107,196,.1) 50%,
+      rgba(201,168,76,.07) 100%);
+    border: 1px solid rgba(58,107,196,.2);
+    border-radius: 3px; padding:80px;
+    text-align:center; position:relative; overflow:hidden;
+  }
+  /* Ishtar tile band across the top */
+  .privacy-band::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--gold) 0px,var(--gold) 10px,
+      transparent 10px,transparent 14px,
+      var(--cobalt-mid) 14px,var(--cobalt-mid) 24px,
+      transparent 24px,transparent 28px
+    );
+    opacity:.5;
+  }
+  .privacy-band::after {
+    content:''; position:absolute;
+    top:-100px;left:-100px;right:-100px;bottom:-100px;
+    background: radial-gradient(ellipse at center, rgba(58,107,196,.05) 0%, transparent 60%);
+    animation: breathe 7s ease infinite;
+  }
+  @keyframes breathe { 0%,100%{transform:scale(1);} 50%{transform:scale(1.3);} }
+
+  /* ── Privacy band border draw ───────────────────────────── */
+  .privacy-border-svg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none; z-index: 2;
+    overflow: visible;
+  }
+  .privacy-border-rect {
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 1.5;
+    opacity: 0.7;
+    stroke-dasharray: 0;
+    stroke-dashoffset: 0;
+  }
+  .privacy-border-rect.drawing {
+    transition: stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  #privacy-band-card.glowing {
+    animation: bandGlow 2.5s ease forwards;
+  }
+  @keyframes bandGlow {
+    0%   { box-shadow: none; }
+    40%  { box-shadow: 0 0 40px rgba(201,168,76,0.22), 0 0 80px rgba(201,168,76,0.1), inset 0 0 40px rgba(201,168,76,0.05); }
+    100% { box-shadow: 0 0 24px rgba(201,168,76,0.1), 0 0 48px rgba(201,168,76,0.05), inset 0 0 20px rgba(201,168,76,0.03); }
+  }
+
+  .privacy-band-title {
+    font-family:'Inter',sans-serif;
+    font-size: clamp(32px, 4vw, 56px);
+    font-weight:700; letter-spacing:-0.02em; text-transform:uppercase;
+    color:var(--ivory); margin-bottom:18px; position:relative; z-index:1;
+    opacity:0; transform:translateY(18px);
+    transition: opacity .9s ease, transform .9s ease;
+  }
+  .privacy-band-title.visible { opacity:1; transform:translateY(0); }
+  .privacy-band-title .accent { color:var(--gold); }
+  .privacy-band-title .accent-blue { color:var(--glaze); }
+
+  .privacy-band-sub {
+    font-size:16px; font-weight:300;
+    color:rgba(237,232,216,.48); max-width:540px; margin:0 auto 52px;
+    line-height:1.82; position:relative; z-index:1;
+    opacity:0; transition: opacity .9s ease .15s;
+  }
+  .privacy-band-sub.visible { opacity:1; }
+  .privacy-stats { display:flex; justify-content:center; gap:80px; position:relative; z-index:1; }
+  .privacy-stat {
+    opacity:0; transform:translateY(18px);
+    transition: opacity .8s ease, transform .8s ease;
+  }
+  .privacy-stat.visible { opacity:1; transform:translateY(0); }
+  .privacy-stat-num {
+    font-family:'Inter',sans-serif;
+    font-size:52px; font-weight:700;
+    color:var(--gold); line-height:1; display:block;
+  }
+  .privacy-stat-label {
+    font-size:10px; letter-spacing:.22em; text-transform:uppercase;
+    color:rgba(237,232,216,.3); margin-top:8px; font-weight:400; display:block;
+  }
+
+  /* OPEN SOURCE */
+  #opensource {
+    padding: 140px 60px;
+    background: linear-gradient(180deg, var(--night) 0%, #0C1020 100%);
+  }
+  .os-inner {
+    max-width:1200px; margin:0 auto;
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:100px; align-items:center;
+  }
+  .code-terminal {
+    background:#06090F;
+    border:1px solid rgba(58,107,196,.15);
+    border-radius:5px; overflow:hidden;
+    opacity:0; transform:translateY(28px);
+    transition: opacity 1s ease .2s, transform 1s ease .2s;
+    font-family:'Courier New', monospace;
+  }
+  .code-terminal.visible { opacity:1; transform:translateY(0); }
+  .terminal-bar {
+    padding:13px 18px;
+    background:rgba(58,107,196,.07);
+    border-bottom:1px solid rgba(58,107,196,.1);
+    display:flex; align-items:center; gap:8px;
+  }
+  .terminal-dot { width:10px; height:10px; border-radius:50%; }
+  .td-red { background:rgba(200,90,80,.6); }
+  .td-yellow { background:rgba(200,160,60,.6); }
+  .td-green { background:rgba(80,160,100,.6); }
+  .terminal-title { font-size:11px; color:rgba(237,232,216,.18); margin-left:8px; letter-spacing:.1em; }
+  .terminal-body { padding:26px 22px; font-size:13px; line-height:2.1; }
+  .t-comment { color:rgba(58,107,196,.5); }
+  .t-cmd { color:var(--glaze-pale); }
+  .t-param { color:var(--gold-light); }
+  .t-string { color:rgba(237,232,216,.55); }
+  .t-cursor {
+    display:inline-block; width:8px; height:14px;
+    background:var(--gold); vertical-align:middle; margin-left:2px;
+    animation: blink 1.2s ease infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+  /* CTA */
+  #cta {
+    padding: 160px 60px; background:#0C1020;
+    text-align:center; position:relative; overflow:hidden;
+  }
+  #cta::before {
+    content:''; position:absolute; top:50%; left:50%;
+    width:700px; height:700px;
+    background: radial-gradient(circle, rgba(26,46,110,.1) 0%, transparent 70%);
+    transform:translate(-50%,-50%); animation: breathe 9s ease infinite;
+  }
+  /* tile border top */
+  #cta::after {
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--gold) 0px,var(--gold) 8px,
+      transparent 8px,transparent 12px,
+      var(--cobalt-mid) 12px,var(--cobalt-mid) 20px,
+      transparent 20px,transparent 24px
+    );
+    opacity:.35;
+  }
+  .cta-inner { position:relative; z-index:1; max-width:700px; margin:0 auto; }
+  .cta-eyebrow {
+    font-family:'Inter',sans-serif;
+    font-size:10px; letter-spacing:.45em; text-transform:uppercase;
+    color:var(--gold); margin-bottom:24px;
+    opacity:0; transition: opacity .8s ease;
+  }
+  .cta-eyebrow.visible { opacity:1; }
+  .cta-title {
+    font-family:'Inter',sans-serif;
+    font-size: clamp(46px, 6vw, 84px);
+    font-weight:700; letter-spacing:-0.02em; text-transform:uppercase;
+    color:var(--ivory); line-height:.95; margin-bottom:24px;
+    opacity:0; transform:translateY(18px);
+    transition: opacity .9s ease .1s, transform .9s ease .1s;
+  }
+  .cta-title.visible { opacity:1; transform:translateY(0); }
+  .cta-title .accent { color:var(--gold); }
+  .cta-sub {
+    font-size:16px; font-weight:300; line-height:1.82;
+    color:rgba(237,232,216,.42); margin-bottom:48px;
+    opacity:0; transition: opacity .9s ease .2s;
+  }
+  .cta-sub.visible { opacity:1; }
+  .cta-actions {
+    display:flex; gap:18px; justify-content:center;
+    opacity:0; transform:translateY(14px);
+    transition: opacity .9s ease .3s, transform .9s ease .3s;
+  }
+  .cta-actions.visible { opacity:1; transform:translateY(0); }
+
+  /* FOOTER */
+  footer {
+    padding:44px 60px; background:#06090F;
+    border-top:1px solid rgba(58,107,196,.1);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .footer-logo {
+    font-family:'Inter',sans-serif; font-size:18px; font-weight:700;
+    letter-spacing:.06em; text-transform:uppercase;
+    color:var(--ivory); opacity:.65;
+  }
+  .footer-logo span { color:var(--gold); }
+  .footer-links { display:flex; gap:32px; }
+  .footer-links a {
+    font-size:12px; letter-spacing:.1em;
+    color:rgba(237,232,216,.22); text-decoration:none; transition:color .3s;
+  }
+  .footer-links a:hover { color:rgba(237,232,216,.55); }
+  .footer-right { font-size:12px; color:rgba(237,232,216,.18); font-weight:300; }
+
+  /* ANIMS */
+  @keyframes fadeUp { from{opacity:0;transform:translateY(28px);} to{opacity:1;transform:translateY(0);} }
+  @keyframes fadeIn  { from{opacity:0;} to{opacity:1;} }
+
+  /* NOISE */
+  body::before {
+    content:''; position:fixed; inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity:.016; pointer-events:none; z-index:9997;
+  }
+
+  @media(max-width:900px){
+    nav{padding:22px 28px;}
+    .nav-links{display:none;}
+    #manifesto,#how,#opensource{padding:80px 28px;}
+    .manifesto-inner,.how-inner,.os-inner{grid-template-columns:1fr;gap:50px;}
+    #features{padding:80px 28px;}
+    .features-grid{grid-template-columns:1fr;}
+    .privacy-stats{flex-direction:column;gap:36px;}
+    .privacy-band{padding:52px 28px;}
+    footer{flex-direction:column;gap:22px;text-align:center;}
+    .footer-links{flex-wrap:wrap;justify-content:center;}
+    #cta,#privacy{padding-left:28px;padding-right:28px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">W<span>A</span>ZIER</div>
+  <div class="nav-links">
+    <a href="#manifesto">Philosophy</a>
+    <a href="#features">Features</a>
+    <a href="#how">How It Works</a>
+    <a href="#opensource">Open Source</a>
+  </div>
+  <a href="#cta" class="nav-cta">Get Started</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="particleCanvas"></canvas>
+  <div class="hero-bg-gradient"></div>
+  <div class="hero-tile-bar"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">Open-Source AI · Complete Privacy</div>
+    <h1 class="hero-title">Use AI <span class="accent-blue">without wifi.</span><br>Protect your <span class="accent">privacy.</span></h1>
+    <p class="hero-subtitle-line">Intelligence that belongs to you alone.</p>
+    <p class="hero-desc">
+      Wazier is an AI that runs entirely on your device. No cloud. No tracking.
+      No data harvested. Powered by Ollama, your conversations stay exactly where
+      they belong · with you.
+    </p>
+    <div class="hero-actions">
+      <a href="#cta" class="btn-primary">Download Free. It's Open Source</a>
+      <a href="#manifesto" class="btn-ghost">Learn More</a>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<div class="tile-accent"></div>
+
+<!-- MANIFESTO -->
+<section id="manifesto">
+  <div class="manifesto-inner">
+    <div class="manifesto-visual reveal">
+      <div class="lock-scene">
+        <div class="lock-rings">
+          <div class="lock-ring"></div>
+          <div class="lock-ring"></div>
+          <div class="lock-ring"></div>
+        </div>
+        <div class="lock-center">
+          <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <div class="lock-dots"></div>
+      </div>
+    </div>
+    <div class="manifesto-text">
+      <p class="section-label reveal">Wazier's Philosophy</p>
+      <h2 class="section-heading reveal">Your mind deserves a <span class="accent-blue">private</span> sanctuary.</h2>
+      <p class="section-body reveal">
+        AI has become extraordinary. But somewhere along the way, your most intimate thoughts  · 
+        your questions, your fears, your ideas · became data points in someone else's model.
+        Wazier was built on a simple belief: intelligence should serve the person, not surveil them.
+      </p>
+      <br><br>
+      <p class="section-body reveal" style="transition-delay:.3s;">
+        Running 100% off the grid, Wazier never sends a single byte of your conversation to any server.
+        Your data is encrypted at rest with industry-standard AES-256, stored only on your machine,
+        and automatically forgotten after 7 days · unless you choose otherwise.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="features-inner">
+    <div class="features-header">
+      <p class="section-label reveal" style="display:flex;justify-content:center;">What Wazier Offers</p>
+      <h2 class="section-heading reveal" style="text-align:center;margin:0 auto 0;">Built different.<br><span class="accent">By design.</span></h2>
+    </div>
+    <div class="features-grid">
+
+      <div class="feature-card reveal" style="transition-delay:0s;">
+        <span class="feature-num">01</span>
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <div class="feature-name">100% Off-Grid</div>
+        <p class="feature-desc">Wazier never touches the internet. No API calls, no telemetry, no phoning home. Your device is the only server that matters.</p>
+      </div>
+
+      <div class="feature-card reveal" style="transition-delay:.1s;">
+        <span class="feature-num">02</span>
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        <div class="feature-name">AES-256 Encryption</div>
+        <p class="feature-desc">Every word you type is encrypted at industry standard before being stored locally. Unreadable to anyone but you.</p>
+      </div>
+
+      <div class="feature-card reveal" style="transition-delay:.2s;">
+        <span class="feature-num">03</span>
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+        <div class="feature-name">7-Day Auto-Forget</div>
+        <p class="feature-desc">Conversations dissolve after 7 days by default. The right to be forgotten is built in · not buried in a settings menu.</p>
+      </div>
+
+      <div class="feature-card reveal" style="transition-delay:.1s;">
+        <span class="feature-num">04</span>
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <div class="feature-name">Permanent Memory, Your Choice</div>
+        <p class="feature-desc">When something matters enough to keep forever, you decide. Memories are pinned locally and encrypted, never sent anywhere.</p>
+      </div>
+
+      <div class="feature-card reveal" style="transition-delay:.2s;">
+        <span class="feature-num">05</span>
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16,18 22,12 16,6"/><polyline points="8,6 2,12 8,18"/></svg>
+        <div class="feature-name">Powered by Ollama</div>
+        <p class="feature-desc">Wazier runs on Ollama · the leading open-source local model framework. Full AI utility, completely offline. No subscription, no ceiling.</p>
+      </div>
+
+      <div class="feature-card reveal" style="transition-delay:.3s;">
+        <span class="feature-num">06</span>
+        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49M7.76 7.76a6 6 0 0 0 0 8.49"/></svg>
+        <div class="feature-name">Fully Open Source</div>
+        <p class="feature-desc">Every line of Wazier is open for inspection. No black boxes. No hidden behaviors. Trust through transparency, verified by the community.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PRIVACY BAND -->
+<section id="privacy" style="padding:100px 60px;">
+  <div class="privacy-inner">
+    <div class="privacy-band" id="privacy-band-card">
+      <svg class="privacy-border-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect class="privacy-border-rect" x="1" y="1" rx="3"/>
+      </svg>
+      <h2 class="privacy-band-title reveal">Wazier doesn't just protect your data.<br>Wazier <span class="accent">fights</span> for it.</h2>
+      <p class="privacy-band-sub reveal">
+        Privacy isn't a feature Wazier added. It's the architecture everything was built on.
+        When AI knows everything about you, that power should be yours alone.
+      </p>
+      <div class="privacy-stats">
+        <div class="privacy-stat reveal" style="transition-delay:0s;"><span class="privacy-stat-num">0</span><span class="privacy-stat-label">Bytes sent to any server</span></div>
+        <div class="privacy-stat reveal" style="transition-delay:.1s;"><span class="privacy-stat-num">7</span><span class="privacy-stat-label">Day default retention</span></div>
+        <div class="privacy-stat reveal" style="transition-delay:.2s;"><span class="privacy-stat-num">256</span><span class="privacy-stat-label">-bit AES encryption</span></div>
+        <div class="privacy-stat reveal" style="transition-delay:.3s;"><span class="privacy-stat-num">100%</span><span class="privacy-stat-label">Open source codebase</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="how-inner">
+    <div>
+      <p class="section-label reveal">How It Works</p>
+      <h2 class="section-heading reveal">Simple to use.<br><span class="accent-blue">Impossible</span> to compromise.</h2>
+      <p class="section-body reveal" style="margin-bottom:56px;">
+        Wazier wraps the power of Ollama in a calm, focused interface designed to feel
+        as natural as thinking out loud · while keeping every thought sealed away from the world.
+      </p>
+      <div class="how-steps">
+        <div class="how-step reveal" style="transition-delay:.1s;">
+          <span class="how-step-num">01</span>
+          <div class="how-step-content">
+            <div class="how-step-title">Install locally, once.</div>
+            <p class="how-step-text">One install on your machine. Wazier pulls Ollama models directly to your drive. No account required. No email. Just open it and begin.</p>
+          </div>
+        </div>
+        <div class="how-step reveal" style="transition-delay:.2s;">
+          <span class="how-step-num">02</span>
+          <div class="how-step-content">
+            <div class="how-step-title">Conversations stay local, encrypted.</div>
+            <p class="how-step-text">Every message is encrypted with AES-256 as it's written. Stored in a local vault only your device can open. Nothing leaves.</p>
+          </div>
+        </div>
+        <div class="how-step reveal" style="transition-delay:.3s;">
+          <span class="how-step-num">03</span>
+          <div class="how-step-content">
+            <div class="how-step-title">Forget naturally, remember intentionally.</div>
+            <p class="how-step-text">After 7 days, conversations are purged automatically. Pin something to your permanent memory vault · still local, still encrypted, still yours.</p>
+          </div>
+        </div>
+        <div class="how-step reveal" style="transition-delay:.4s;">
+          <span class="how-step-num">04</span>
+          <div class="how-step-content">
+            <div class="how-step-title">Your AI grows with you.</div>
+            <p class="how-step-text">Wazier learns your preferences from the memory you choose to keep. A personal agent that gets sharper without ever being watched.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="memory-visual reveal">
+      <div class="memory-card">
+        <span class="memory-card-tag">Permanent Memory · Encrypted</span>
+        <div class="memory-card-title">Project Lighthouse brainstorm</div>
+        <div class="memory-card-meta">Saved forever · AES-256 · Local only</div>
+        <div class="memory-card-bar"><div class="memory-card-fill permanent"></div></div>
+      </div>
+      <div class="memory-card">
+        <span class="memory-card-tag">7-Day Session · Expiring in 3 days</span>
+        <div class="memory-card-title">Tuesday afternoon planning</div>
+        <div class="memory-card-meta">Auto-deletes Jun 8, 2026 · Encrypted</div>
+        <div class="memory-card-bar"><div class="memory-card-fill draining"></div></div>
+      </div>
+      <div class="memory-card">
+        <span class="memory-card-tag">7-Day Session · Expiring tomorrow</span>
+        <div class="memory-card-title">Morning journal entry</div>
+        <div class="memory-card-meta">Auto-deletes Jun 6, 2026 · Encrypted</div>
+        <div class="memory-card-bar"><div class="memory-card-fill draining-fast"></div></div>
+      </div>
+      <div class="memory-encryption">
+        <span class="memory-encryption-icon">🛡</span>
+        <div class="memory-encryption-label">All data encrypted at rest</div>
+        <div class="memory-encryption-detail">AES-256 · Local vault · Zero network access</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- OPEN SOURCE -->
+<section id="opensource">
+  <div class="os-inner">
+    <div>
+      <p class="section-label reveal">Open Source</p>
+      <h2 class="section-heading reveal">Don't trust Wazier.<br><span class="accent">Verify Wazier.</span></h2>
+      <p class="section-body reveal">
+        Privacy claims without proof are just marketing. Wazier's entire codebase
+        is open for the world to read, audit, and improve. Built on Ollama, maintained by
+        a community that believes your data is your own.
+      </p>
+      <br><br>
+      <p class="section-body reveal" style="transition-delay:.2s;">
+        Clone it. Fork it. Run it airgapped on a machine that has never touched Wi-Fi.
+        It will work exactly the same. Because that's the point.
+      </p>
+      <br><br>
+      <div class="reveal" style="opacity:0;transform:translateY(14px);transition:opacity .8s ease .4s,transform .8s ease .4s;">
+        <a href="https://github.com/ablugg/wazier" target="_blank" class="btn-primary" style="display:inline-block;">View on GitHub</a>
+      </div>
+    </div>
+    <div class="code-terminal reveal">
+      <div class="terminal-bar">
+        <div class="terminal-dot td-red"></div>
+        <div class="terminal-dot td-yellow"></div>
+        <div class="terminal-dot td-green"></div>
+        <span class="terminal-title">wazier · bash</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="t-comment"># 1. Install Ollama (one-time)</span></div>
+        <div><span class="t-cmd">open</span> <span class="t-string">https://ollama.com</span></div>
+        <br>
+        <div><span class="t-comment"># 2. Clone Wazier</span></div>
+        <div><span class="t-cmd">git clone</span> <span class="t-string">https://github.com/ablugg/wazier</span></div>
+        <div><span class="t-cmd">cd</span> <span class="t-param">wazier</span></div>
+        <br>
+        <div><span class="t-comment"># 3. Install dependencies</span></div>
+        <div><span class="t-cmd">npm</span> <span class="t-param">install</span></div>
+        <br>
+        <div><span class="t-comment"># 4. Run</span></div>
+        <div><span class="t-cmd">npm</span> <span class="t-param">start</span></div>
+        <br>
+        <div><span class="t-comment"># ✓ No network access after setup</span></div>
+        <div><span class="t-comment"># ✓ Encrypted history vault active</span></div>
+        <div><span class="t-comment"># ✓ AI model running locally via Ollama</span></div>
+        <br>
+        <div><span class="t-string">Wazier is ready.</span> <span class="t-cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-inner">
+    <p class="cta-eyebrow reveal">Free &amp; Open Source</p>
+    <h2 class="cta-title reveal">Your thoughts<br>are <span class="accent">sacred.</span></h2>
+    <p class="cta-sub reveal">Start using AI the way it was always meant to feel · like thinking in private.</p>
+    <div class="cta-actions reveal">
+      <a href="https://github.com/ablugg/wazier/releases/latest/download/Wazier-1.0.4-arm64.dmg" class="btn-primary">Download for Mac</a>
+      <a href="https://github.com/ablugg/wazier/releases/latest/download/Wazier.Setup.1.0.4.exe" class="btn-ghost">Download for Windows</a>
+      <a href="https://github.com/ablugg/wazier/releases/latest/download/Wazier-1.0.4.AppImage" class="btn-ghost">Download for Linux</a>
+    </div>
+    <p style="margin-top:28px; font-size:15px; color:rgba(237,232,216,0.85); line-height:2;">
+      Mac users: if macOS says the app is damaged, right-click Wazier in Applications and select Open.<br>
+      Or run <code style="background:rgba(255,255,255,0.08); padding:3px 10px; border-radius:4px; font-size:13px; color:#ffffff;">xattr -cr /Applications/Wazier.app</code> in Terminal, then launch normally.<br>
+      This is a Gatekeeper warning for unsigned apps. Wazier is safe and fully open source.
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">W<span>A</span>ZIER</div>
+  <div class="footer-links">
+    <a href="https://github.com/ablugg/wazier" target="_blank">GitHub</a>
+    <a href="https://github.com/ablugg/wazier#readme" target="_blank">Documentation</a>
+    <a href="#">Privacy Policy</a>
+    <a href="https://github.com/ablugg/wazier/discussions" target="_blank">Community</a>
+    <a href="https://ollama.com" target="_blank">Ollama</a>
+  </div>
+  <div class="footer-right">© 2026 Wazier. Open Source.</div>
+</footer>
+
+<script>
+  /* CURSOR */
+  const cursor=document.getElementById('cursor'),ring=document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  (function animC(){cursor.style.left=mx+'px';cursor.style.top=my+'px';rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animC);})();
+  document.querySelectorAll('a,button').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cursor.style.width='20px';cursor.style.height='20px';ring.style.width='60px';ring.style.height='60px';});
+    el.addEventListener('mouseleave',()=>{cursor.style.width='10px';cursor.style.height='10px';ring.style.width='40px';ring.style.height='40px';});
+  });
+
+  /* PARTICLE CANVAS */
+  const canvas=document.getElementById('particleCanvas'),ctx=canvas.getContext('2d');
+  let W,H;
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  resize(); window.addEventListener('resize',resize);
+
+  class Particle{
+    constructor(){this.reset();}
+    reset(){this.x=Math.random()*W;this.y=Math.random()*H;this.vx=(Math.random()-.5)*.3;this.vy=(Math.random()-.5)*.3;this.r=Math.random()*1.4+.4;this.alpha=Math.random()*.35+.08;}
+    update(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>W)this.vx*=-1;if(this.y<0||this.y>H)this.vy*=-1;}
+  }
+  const particles=[];
+  for(let i=0;i<90;i++) particles.push(new Particle());
+  let mouseX=W/2,mouseY=H/2;
+  window.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY;});
+
+  (function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<particles.length;i++){
+      const p=particles[i]; p.update();
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      /* Ishtar blue-gold particles */
+      ctx.fillStyle=i%3===0?`rgba(201,168,76,${p.alpha})`:`rgba(58,107,196,${p.alpha})`;
+      ctx.fill();
+      for(let j=i+1;j<particles.length;j++){
+        const q=particles[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<120){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=`rgba(34,68,168,${.07*(1-d/120)})`;ctx.lineWidth=.5;ctx.stroke();}
+      }
+      const mdx=p.x-mouseX,mdy=p.y-mouseY,md=Math.sqrt(mdx*mdx+mdy*mdy);
+      if(md<170){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(mouseX,mouseY);ctx.strokeStyle=`rgba(201,168,76,${.12*(1-md/170)})`;ctx.lineWidth=.5;ctx.stroke();}
+    }
+    requestAnimationFrame(draw);
+  })();
+
+  /* LOCK DOTS */
+  const lockDots=document.querySelector('.lock-dots');
+  if(lockDots){for(let i=0;i<12;i++){const dot=document.createElement('div');dot.className='lock-dot';const angle=Math.PI*2/12*i,r=140,tx=Math.cos(angle)*r,ty=Math.sin(angle)*r;dot.style.cssText=`left:calc(50% + ${tx}px);top:calc(50% + ${ty}px);animation-delay:${i*.25}s;animation-duration:${2.5+Math.random()}s;`;lockDots.appendChild(dot);}}
+
+  /* SCROLL REVEAL */
+  const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');e.target.querySelectorAll('.section-label,.section-heading,.section-body').forEach(c=>c.classList.add('visible'));}});},{threshold:.14,rootMargin:'0px 0px -50px 0px'});
+  document.querySelectorAll('.reveal,.section-label,.section-heading,.section-body,.privacy-band-title,.privacy-band-sub,.privacy-stat,.cta-eyebrow,.cta-title,.cta-sub,.cta-actions,.feature-card,.how-step,.manifesto-visual,.memory-visual,.code-terminal').forEach(el=>obs.observe(el));
+
+  /* PRIVACY BAND BORDER DRAW */
+  const bandCard = document.getElementById('privacy-band-card')
+  const borderRect = document.querySelector('.privacy-border-rect')
+  if (bandCard && borderRect) {
+    const sizeBorderRect = () => {
+      const { width, height } = bandCard.getBoundingClientRect()
+      borderRect.setAttribute('width', width - 2)
+      borderRect.setAttribute('height', height - 2)
+      const len = borderRect.getTotalLength()
+      borderRect.style.strokeDasharray = len
+      borderRect.style.strokeDashoffset = len
+    }
+
+    sizeBorderRect()
+    window.addEventListener('resize', sizeBorderRect)
+
+    borderRect.addEventListener('transitionend', () => {
+      bandCard.classList.add('glowing')
+    }, { once: true })
+
+    const bandObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          sizeBorderRect()
+          requestAnimationFrame(() => {
+            borderRect.classList.add('drawing')
+            borderRect.style.strokeDashoffset = '0'
+          })
+          bandObs.disconnect()
+        }
+      })
+    }, { threshold: 0.25 })
+    bandObs.observe(bandCard)
+  }
+
+  /* SMOOTH SCROLL */
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const el=document.getElementById(a.getAttribute('href').slice(1));if(el)el.scrollIntoView({behavior:'smooth'});});});
+</script>
+</body>
+</html>
